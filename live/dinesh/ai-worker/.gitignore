@@ -1,0 +1,26 @@
+# Ignore all files and directories by default
+/*
+
+# Exception: track only the workflow-builder directory
+!/workflow-builder/
+
+# Ignore the embedded git repository inside workflow-builder
+workflow-builder/.git/
+workflow-builder/.git/**
+
+# Track specific new files in workflow-builder
+!workflow-builder/src/components/ui/alert-dialog.tsx
+!workflow-builder/src/components/ui/dialog.tsx
+
+# Ignore build outputs and dependencies in workflow-builder
+workflow-builder/node_modules/
+workflow-builder/dist/
+workflow-builder/.next/
+workflow-builder/build/
+workflow-builder/*.log
+workflow-builder/.env*
+
+# Ignore everything else in parent directories
+../../../*
+../../*
+../*
