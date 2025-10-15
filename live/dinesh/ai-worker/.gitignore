@@ -1,0 +1,13 @@
+# Ignore everything by default
+/*
+
+# But track the workflow-builder directory and its contents
+!/workflow-builder/
+
+# Also ignore common IDE and system files within workflow-builder if needed
+workflow-builder/node_modules/
+workflow-builder/.next/
+workflow-builder/dist/
+workflow-builder/build/
+workflow-builder/.env*
+workflow-builder/*.log
