@@ -13,7 +13,7 @@
 
 | Dashboard | Team Management | Projects | Blog |
 |:---:|:---:|:---:|:---:|
-| ![Dashboard](images/dashboard-screen.png) | ![Team](images/team-screen.png) | ![Projects](images/project-screen.png) | ![Blog](images/blogs-screen.png) |
+| ![Dashboard](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/dashboard-screen.png) | ![Team](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/team-screen.png) | ![Projects](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/project-screen.png) | ![Blog](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/blogs-screen.png) |
 
 ## What This Project Does
 
@@ -90,30 +90,30 @@ open images/
 All project screenshots are in the `/images` folder:
 
 ### Main Features
-![Dashboard](images/dashboard-screen.png)
+![Dashboard](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/dashboard-screen.png)
 *Main workspace with stats and quick actions*
 
-![Team Management](images/team-screen.png)
+![Team Management](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/team-screen.png)
 *Team collaboration interface*
 
-![Projects](images/project-screen.png)
+![Projects](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/project-screen.png)
 *Project tracking and management*
 
 ### Blog & Content
-![Blog](images/blogs-screen.png)
+![Blog](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/blogs-screen.png)
 *Article listing and search*
 
-![Blog Details](images/blogs-detailes-screen.png)
+![Blog Details](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/blogs-detailes-screen.png)
 *Full blog post with sharing*
 
 ### Company Pages
-![About](images/about-us-screen.png)
+![About](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/about-us-screen.png)
 *Company information*
 
-![Careers](images/career-screen.png)
+![Careers](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/career-screen.png)
 *Job opportunities*
 
-![Contact](images/contact-us-screen.png)
+![Contact](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/contact-us-screen.png)
 *Contact and support*
 
 ---
