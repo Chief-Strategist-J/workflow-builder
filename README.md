@@ -118,7 +118,7 @@ All project screenshots are in the `/images` folder:
 
 ---
 
-*To view images: Open the `/images` folder in your project*
+*📸 Images will be visible on GitHub once this repository is updated. For local viewing, open the `/my-app/images` folder in your project directory.*
 
 ## About the Creator
 
