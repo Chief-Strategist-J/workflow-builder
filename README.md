@@ -9,11 +9,17 @@
 
 ## Project Preview
 
-### Main Interface Screenshots
+### 📊 Dashboard
+![Dashboard](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/dashboard-screen.png)
 
-| Dashboard | Team Management | Projects | Blog |
-|:---:|:---:|:---:|:---:|
-| ![Dashboard](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/dashboard-screen.png) | ![Team](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/team-screen.png) | ![Projects](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/project-screen.png) | ![Blog](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/blogs-screen.png) |
+### 👥 Team Management
+![Team Management](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/team-screen.png)
+
+### 📋 Projects
+![Projects](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/project-screen.png)
+
+### 📝 Blog System
+![Blog](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/blogs-screen.png)
 
 ## What This Project Does
 
@@ -87,9 +93,7 @@ open images/
 
 ## Project Screenshots
 
-All project screenshots are in the `/images` folder:
-
-### Main Features
+### Core Features
 ![Dashboard](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/dashboard-screen.png)
 *Main workspace with stats and quick actions*
 
@@ -98,6 +102,16 @@ All project screenshots are in the `/images` folder:
 
 ![Projects](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/project-screen.png)
 *Project tracking and management*
+
+### User Interface
+![Profile](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/profile-screen.png)
+*User profile management*
+
+![Settings](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/settings-screen.png)
+*Account and system configuration*
+
+![Notifications](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/notification-screen.png)
+*Notification center and preferences*
 
 ### Blog & Content
 ![Blog](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/blogs-screen.png)
