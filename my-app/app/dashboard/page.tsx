@@ -18,6 +18,8 @@ import {
   Menu,
   LogOut,
   ChevronRight,
+  User,
+  Calendar,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -65,7 +67,7 @@ const navigation = [
   {
     title: "Analytics",
     url: "/dashboard/analytics",
-    icon: BarChart3,
+    icon: Calendar,
   },
   {
     title: "Projects",
@@ -76,6 +78,16 @@ const navigation = [
     title: "Team",
     url: "/dashboard/team",
     icon: Users,
+  },
+  {
+    title: "Notifications",
+    url: "/dashboard/notifications",
+    icon: Bell,
+  },
+  {
+    title: "Profile",
+    url: "/dashboard/profile",
+    icon: User,
   },
   {
     title: "Settings",
@@ -117,6 +129,12 @@ const recentActivity = [
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("")
+
+  const handleLogout = () => {
+    // Clear authentication token
+    document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+    window.location.href = '/signin'
+  }
 
   return (
     <SidebarProvider>
@@ -190,8 +208,10 @@ export default function DashboardPage() {
                   New Project
                 </Button>
 
-                <Button variant="outline" size="icon">
-                  <Bell className="h-4 w-4" />
+                <Button variant="outline" size="icon" asChild>
+                  <Link href="/dashboard/notifications">
+                    <Bell className="h-4 w-4" />
+                  </Link>
                 </Button>
 
                 <DropdownMenu>
@@ -213,16 +233,20 @@ export default function DashboardPage() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <UserCheck className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/profile">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/settings">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
@@ -337,27 +361,39 @@ export default function DashboardPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create New Project
+                  <Button className="w-full justify-start" variant="outline" asChild>
+                    <Link href="/dashboard/create-project">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create New Project
+                    </Link>
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Users className="mr-2 h-4 w-4" />
-                    Invite Team Member
+                  <Button className="w-full justify-start" variant="outline" asChild>
+                    <Link href="/dashboard/invite-team">
+                      <Users className="mr-2 h-4 w-4" />
+                      Invite Team Member
+                    </Link>
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Generate Report
+                  <Button className="w-full justify-start" variant="outline" asChild>
+                    <Link href="/dashboard/generate-report">
+                      <FileText className="mr-2 h-4 w-4" />
+                      Generate Report
+                    </Link>
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Configure Settings
+                  <Button className="w-full justify-start" variant="outline" asChild>
+                    <Link href="/dashboard/profile">
+                      <User className="mr-2 h-4 w-4" />
+                      View Profile
+                    </Link>
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline" asChild>
+                    <Link href="/dashboard/notifications">
+                      <Bell className="mr-2 h-4 w-4" />
+                      View Notifications
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
             </div>
-
-            {/* Recent Projects */}
             <Card>
               <CardHeader>
                 <CardTitle>Recent Projects</CardTitle>
