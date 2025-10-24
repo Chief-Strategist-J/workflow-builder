@@ -1,9 +1,0 @@
-# Ignore everything by default
-/*
-
-# Track only the specific UI components that were added
-\!workflow-builder/src/components/ui/alert-dialog.tsx
-\!workflow-builder/src/components/ui/dialog.tsx
-
-# Keep the git repository structure but ignore everything else
-**/*
