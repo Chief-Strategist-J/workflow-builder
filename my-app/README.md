@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Features
+
+This project includes modern authentication screens and a comprehensive dashboard:
+
+- **Sign In Page** (`/signin`) - Modern login form with social auth options
+- **Sign Up Page** (`/signup`) - Registration form with validation
+- **Dashboard** (`/dashboard`) - Full-featured dashboard with sidebar navigation
+- **Responsive Design** - Works on all device sizes
+- **Dark Mode Support** - Built-in dark/light theme support
+
 ## Getting Started
 
 First, run the development server:
@@ -18,6 +28,21 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Pages
+
+- `/` - Home page (redirects to signin)
+- `/signin` - Sign in to your account
+- `/signup` - Create a new account
+- `/dashboard` - Main dashboard with sidebar navigation
+
+## Tech Stack
+
+- **Next.js 16** - React framework with App Router
+- **shadcn/ui** - Modern UI components
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Beautiful icons
+- **TypeScript** - Type safety
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
@@ -34,3 +59,5 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+For detailed information about the authentication screens, see [README-AUTH.md](README-AUTH.md).
