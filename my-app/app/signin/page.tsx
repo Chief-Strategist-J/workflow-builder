@@ -24,7 +24,17 @@ export default function SigninPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log("Sign in attempt:", { email, password })
-    // Add your authentication logic here
+
+    // For demo purposes, we'll accept any email/password combination
+    // In a real app, you'd validate credentials with your backend
+    if (email && password) {
+      // Set authentication token
+      document.cookie = `auth-token=authenticated; path=/; max-age=${60 * 60 * 24 * 7}` // 7 days
+
+      // Redirect to dashboard or intended page
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/dashboard'
+      window.location.href = redirectTo
+    }
   }
 
   return (

@@ -44,7 +44,16 @@ export default function SignupPage() {
       return
     }
     console.log("Sign up attempt:", formData)
-    // Add your registration logic here
+
+    // For demo purposes, we'll accept the registration
+    // In a real app, you'd submit to your backend and handle validation
+    if (formData.email && formData.password && formData.firstName && formData.lastName) {
+      // Set authentication token
+      document.cookie = `auth-token=authenticated; path=/; max-age=${60 * 60 * 24 * 7}` // 7 days
+
+      // Redirect to dashboard
+      window.location.href = '/dashboard'
+    }
   }
 
   return (
