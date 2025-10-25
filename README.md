@@ -39,7 +39,14 @@ A complete project management platform that helps teams collaborate, track proje
 - **Project Creation** - Easy project setup with templates
 - **Progress Tracking** - Visual progress bars and status updates
 - **Report Generation** - Create and export project reports
-- **Workflow Builder** - Visual drag & drop workflow automation
+### Workflow Automation
+- **Complete CRUD Operations** - Create, Read, Update, Delete workflows
+- **Visual Drag & Drop Builder** - n8n-style workflow automation interface
+- **6 Node Types** - Trigger, Email, Condition, Delay, Webhook, Database
+- **Real-time Canvas** - Visual workflow design with animated connections
+- **Workflow Templates** - Pre-built automation examples
+- **Status Management** - Activate/deactivate workflows with one click
+- **Search & Filter** - Find workflows quickly by name or description
 
 ### Content & Blog
 - **Blog System** - Article listing with search and categories
@@ -59,8 +66,15 @@ A complete project management platform that helps teams collaborate, track proje
 - `/dashboard` - Main workspace overview
 - `/dashboard/projects` - Project management
 - `/dashboard/team` - Team collaboration tools
-- `/dashboard/workflow` - Visual workflow builder with drag & drop
+- `/dashboard/workflow` - Workflow management with CRUD operations
+- `/dashboard/workflow/builder/[id]` - Edit specific workflows
 - `/dashboard/settings` - Account preferences
+
+### Advanced Tools
+- **Workflow Management** (`/dashboard/workflow`) - Complete workflow CRUD operations
+- **Visual Workflow Builder** (`/dashboard/workflow/builder/[id]`) - n8n-style drag & drop automation
+- **Workflow Templates** - Pre-built automation templates for common use cases
+- **Report Generation** (`/dashboard/generate-report`) - Advanced report creation and export
 
 ## Quick Start
 
