@@ -368,9 +368,9 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/dashboard/workflow">
+                    <Link href="/dashboard/workflow/builder/new">
                       <GitBranch className="mr-2 h-4 w-4" />
-                      Manage Workflows
+                      Create Workflow
                     </Link>
                   </Button>
                   <Button className="w-full justify-start" variant="outline" asChild>

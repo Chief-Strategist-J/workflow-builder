@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   User,
@@ -155,6 +156,7 @@ interface Workflow {
 }
 
 export default function WorkflowPage() {
+  const router = useRouter()
   const [workflows, setWorkflows] = useState<Workflow[]>([
     {
       id: "1",
@@ -218,6 +220,9 @@ export default function WorkflowPage() {
       setNewWorkflowName("")
       setNewWorkflowDescription("")
       setIsCreateDialogOpen(false)
+
+      // Redirect to workflow builder
+      router.push(`/dashboard/workflow/builder/${newWorkflow.id}`)
     }
   }
 
@@ -383,7 +388,9 @@ export default function WorkflowPage() {
                   <p className="text-muted-foreground mb-4">
                     Create your first automated workflow to get started
                   </p>
-                  <Button onClick={() => setIsCreateDialogOpen(true)}>
+                  <Button onClick={() => {
+                    setIsCreateDialogOpen(true)
+                  }}>
                     <Plus className="h-4 w-4 mr-2" />
                     Create Your First Workflow
                   </Button>
