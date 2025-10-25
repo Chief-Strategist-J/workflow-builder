@@ -398,28 +398,28 @@ export default function WorkflowPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
                 {/* Node Palette */}
                 <Card className="lg:col-span-1">
                   <CardHeader>
-                    <CardTitle className="text-lg">Node Types</CardTitle>
-                    <CardDescription>
-                      Drag nodes to the canvas to build your workflow
+                    <CardTitle className="text-base">Node Types</CardTitle>
+                    <CardDescription className="text-sm">
+                      Drag to canvas
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-2">
                     {nodeTypes.map((nodeType) => (
                       <div
                         key={nodeType.id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, nodeType.id)}
-                        className={`p-3 rounded-lg border-2 border-dashed cursor-move hover:border-solid hover:shadow-md transition-all ${nodeType.color}`}
+                        className={`p-2 rounded-md border-2 border-dashed cursor-move hover:border-solid hover:shadow-sm transition-all ${nodeType.color}`}
                       >
-                        <div className="flex items-center gap-3">
-                          <nodeType.icon className="h-5 w-5" />
+                        <div className="flex items-center gap-2">
+                          <nodeType.icon className="h-3 w-3" />
                           <div>
-                            <div className="font-medium text-sm">{nodeType.name}</div>
-                            <div className="text-xs opacity-75">{nodeType.description}</div>
+                            <div className="font-medium text-xs">{nodeType.name}</div>
+                            <div className="text-xs opacity-75 leading-tight">{nodeType.description}</div>
                           </div>
                         </div>
                       </div>
@@ -428,7 +428,7 @@ export default function WorkflowPage() {
                 </Card>
 
                 {/* Workflow Canvas */}
-                <Card className="lg:col-span-3">
+                <Card className="lg:col-span-5">
                   <CardHeader>
                     <CardTitle className="text-lg">Workflow Canvas</CardTitle>
                     <CardDescription>
@@ -437,7 +437,7 @@ export default function WorkflowPage() {
                   </CardHeader>
                   <CardContent>
                     <div
-                      className="workflow-canvas relative min-h-[500px] bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
+                      className="workflow-canvas relative min-h-[500px] w-full bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
                       onDrop={handleDrop}
                       onDragOver={handleDragOver}
                       style={{
@@ -453,7 +453,7 @@ export default function WorkflowPage() {
                       {nodes.map((node) => (
                         <div
                           key={node.id}
-                          className={`absolute w-48 p-4 rounded-lg border-2 shadow-lg cursor-move transition-all hover:shadow-xl ${
+                          className={`absolute w-32 p-3 rounded-lg border-2 shadow-lg cursor-move transition-all hover:shadow-xl ${
                             selectedNode === node.id
                               ? 'border-blue-500 bg-blue-50'
                               : 'border-gray-300 bg-white'
@@ -472,34 +472,34 @@ export default function WorkflowPage() {
                               {(() => {
                                 const nodeTypeData = nodeTypes.find(n => n.id === node.type)
                                 const IconComponent = nodeTypeData?.icon || GitBranch
-                                return <IconComponent className="h-4 w-4" />
+                                return <IconComponent className="h-3 w-3" />
                               })()}
-                              <span className="font-medium text-sm">{node.name}</span>
+                              <span className="font-medium text-xs">{node.name}</span>
                             </div>
                             {isEditMode && (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                className="h-5 w-5 p-0 text-red-500 hover:text-red-700"
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   handleDeleteNode(node.id)
                                 }}
                               >
-                                <Trash2 className="h-3 w-3" />
+                                <Trash2 className="h-2 w-2" />
                               </Button>
                             )}
                           </div>
-                          <div className="text-xs text-gray-600 mb-2">
+                          <div className="text-xs text-gray-600 mb-2 leading-tight">
                             {nodeTypes.find(n => n.id === node.type)?.description}
                           </div>
                           <div className="flex justify-between items-center">
                             <div className="flex gap-1">
-                              <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                              <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                              <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                              <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
                             </div>
                             {isEditMode && (
-                              <Button variant="outline" size="sm" className="h-6 text-xs">
+                              <Button variant="outline" size="sm" className="h-5 text-xs px-2">
                                 Configure
                               </Button>
                             )}
@@ -514,9 +514,9 @@ export default function WorkflowPage() {
                           const toNode = nodes.find(n => n.id === connection.to)
                           if (!fromNode || !toNode) return null
 
-                          const fromX = fromNode.x + 192 // Center of node width
+                          const fromX = fromNode.x + 128 // Center of node width (w-32 = 128px)
                           const fromY = fromNode.y + 60 // Bottom of node
-                          const toX = toNode.x + 96 // Center of target node
+                          const toX = toNode.x + 64 // Center of target node
                           const toY = toNode.y + 20 // Top of target node
 
                           return (
