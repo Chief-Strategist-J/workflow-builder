@@ -243,6 +243,21 @@ export default function WorkflowBuilderPage() {
         { from: "database-1", to: "webhook-3" },
       ],
     },
+    // Add workflow for the specific ID the user mentioned
+    {
+      id: "1761415106367",
+      name: "Custom Workflow",
+      description: "Custom workflow created by user",
+      nodes: [
+        { id: "trigger-1761415106367-1", type: "trigger", name: "Start Event", x: 100, y: 100, config: {} },
+        { id: "email-1761415106367-1", type: "email", name: "Send Notification", x: 300, y: 100, config: {} },
+        { id: "webhook-1761415106367-1", type: "webhook", name: "API Call", x: 500, y: 100, config: {} },
+      ],
+      connections: [
+        { from: "trigger-1761415106367-1", to: "email-1761415106367-1" },
+        { from: "email-1761415106367-1", to: "webhook-1761415106367-1" },
+      ],
+    },
   ]
 
   const currentWorkflow = sampleWorkflows.find(w => w.id === workflowId) || sampleWorkflows[0]
@@ -260,6 +275,51 @@ export default function WorkflowBuilderPage() {
   )
   const [isRunning, setIsRunning] = useState(false)
   const [isEditMode, setIsEditMode] = useState(!isViewMode)
+  const [isConnecting, setIsConnecting] = useState(false)
+  const [connectionStart, setConnectionStart] = useState<string | null>(null)
+
+  const handleNodeMouseDown = (nodeId: string) => {
+    if (!isEditMode || isViewMode) return
+
+    setConnectionStart(nodeId)
+    setIsConnecting(true)
+  }
+
+  const handleNodeMouseUp = (nodeId: string) => {
+    if (!isEditMode || isViewMode || !isConnecting || !connectionStart) return
+
+    if (nodeId !== connectionStart) {
+      // Check if connection already exists
+      const existingConnection = connections.find(
+        conn => conn.from === connectionStart && conn.to === nodeId
+      )
+
+      if (!existingConnection) {
+        setConnections(prev => [...prev, { from: connectionStart, to: nodeId }])
+      }
+    }
+
+    setConnectionStart(null)
+    setIsConnecting(false)
+  }
+
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+
+  const handleCanvasMouseMove = (e: React.MouseEvent) => {
+    if (isConnecting && connectionStart) {
+      const rect = e.currentTarget.getBoundingClientRect()
+      setMousePosition({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      })
+    }
+  }
+
+  const handleCanvasClick = () => {
+    setConnectionStart(null)
+    setIsConnecting(false)
+    setSelectedNode(null)
+  }
 
   const handleDragStart = (e: React.DragEvent, nodeType: string) => {
     e.dataTransfer.setData("nodeType", nodeType)
@@ -317,6 +377,10 @@ export default function WorkflowBuilderPage() {
     if (selectedNode === nodeId) {
       setSelectedNode(null)
     }
+  }
+
+  const handleDeleteConnection = (from: string, to: string) => {
+    setConnections(prev => prev.filter(conn => !(conn.from === from && conn.to === to)))
   }
 
   const handleSaveWorkflow = () => {
@@ -515,6 +579,8 @@ export default function WorkflowBuilderPage() {
                       className="workflow-canvas relative min-h-[600px] w-full bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
                       onDrop={!isViewMode ? handleDrop : undefined}
                       onDragOver={!isViewMode ? handleDragOver : undefined}
+                      onClick={handleCanvasClick}
+                      onMouseMove={handleCanvasMouseMove}
                       style={{
                         backgroundImage: `
                           radial-gradient(circle, #e5e7eb 1px, transparent 1px),
@@ -538,8 +604,8 @@ export default function WorkflowBuilderPage() {
                             top: node.y,
                             zIndex: selectedNode === node.id ? 10 : 1,
                           }}
-                          draggable={isEditMode && !isViewMode}
-                          onDrag={(e) => handleNodeDrag(e, node.id)}
+                          onMouseDown={() => handleNodeMouseDown(node.id)}
+                          onMouseUp={() => handleNodeMouseUp(node.id)}
                           onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
                         >
                           <div className="flex items-center justify-between mb-2">
@@ -579,8 +645,56 @@ export default function WorkflowBuilderPage() {
                               </Button>
                             )}
                           </div>
+
+                          {/* Connection points */}
+                          {isEditMode && !isViewMode && (
+                            <>
+                              {/* Input connection point (left) */}
+                              <div
+                                className="absolute w-3 h-3 rounded-full bg-blue-500 border-2 border-white -left-2 top-1/2 transform -translate-y-1/2 cursor-crosshair hover:bg-blue-600 transition-colors"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation()
+                                  handleNodeMouseDown(node.id)
+                                }}
+                              />
+                              {/* Output connection point (right) */}
+                              <div
+                                className="absolute w-3 h-3 rounded-full bg-blue-500 border-2 border-white -right-2 top-1/2 transform -translate-y-1/2 cursor-crosshair hover:bg-blue-600 transition-colors"
+                                onMouseUp={(e) => {
+                                  e.stopPropagation()
+                                  handleNodeMouseUp(node.id)
+                                }}
+                              />
+                            </>
+                          )}
                         </div>
                       ))}
+
+                      {/* Temporary connection line while connecting */}
+                      {isConnecting && connectionStart && (
+                        <svg className="absolute inset-0 pointer-events-none" style={{ zIndex: 5 }}>
+                          {(() => {
+                            const startNode = nodes.find(n => n.id === connectionStart)
+                            if (!startNode) return null
+
+                            const startX = startNode.x + 128 // Right side of node
+                            const startY = startNode.y + 60 // Center vertically
+
+                            return (
+                              <line
+                                x1={startX}
+                                y1={startY}
+                                x2={mousePosition.x || startX + 100}
+                                y2={mousePosition.y || startY}
+                                stroke="#3b82f6"
+                                strokeWidth="2"
+                                strokeDasharray="5,5"
+                                className="animate-pulse opacity-75"
+                              />
+                            )
+                          })()}
+                        </svg>
+                      )}
 
                       {/* Render connections */}
                       <svg className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
@@ -589,10 +703,10 @@ export default function WorkflowBuilderPage() {
                           const toNode = nodes.find(n => n.id === connection.to)
                           if (!fromNode || !toNode) return null
 
-                          const fromX = fromNode.x + 128 // Center of node width (w-32 = 128px)
-                          const fromY = fromNode.y + 60 // Bottom of node
-                          const toX = toNode.x + 64 // Center of target node
-                          const toY = toNode.y + 20 // Top of target node
+                          const fromX = fromNode.x + 128 // Right side of source node
+                          const fromY = fromNode.y + 60 // Center vertically
+                          const toX = toNode.x + 0 // Left side of target node
+                          const toY = toNode.y + 60 // Center vertically
 
                           return (
                             <g key={index}>
@@ -603,17 +717,36 @@ export default function WorkflowBuilderPage() {
                                 y2={toY}
                                 stroke="#3b82f6"
                                 strokeWidth="2"
-                                strokeDasharray="5,5"
-                                className="animate-pulse"
+                                className="hover:stroke-blue-600 transition-colors"
                               />
-                              <circle cx={fromX} cy={fromY} r="4" fill="#3b82f6" />
-                              <circle cx={toX} cy={toY} r="4" fill="#3b82f6" />
+                              {/* Connection points */}
+                              <circle cx={fromX} cy={fromY} r="3" fill="#3b82f6" className="hover:fill-blue-600 transition-colors" />
+                              <circle cx={toX} cy={toY} r="3" fill="#3b82f6" className="hover:fill-blue-600 transition-colors" />
+
+                              {/* Delete connection button (only in edit mode) */}
+                              {isEditMode && !isViewMode && (
+                                <foreignObject
+                                  x={(fromX + toX) / 2 - 10}
+                                  y={(fromY + toY) / 2 - 10}
+                                  width="20"
+                                  height="20"
+                                >
+                                  <button
+                                    className="w-5 h-5 rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition-colors flex items-center justify-center"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDeleteConnection(connection.from, connection.to)
+                                    }}
+                                    title="Delete connection"
+                                  >
+                                    ×
+                                  </button>
+                                </foreignObject>
+                              )}
                             </g>
                           )
                         })}
                       </svg>
-
-                      {nodes.length === 0 && (
                         <div className="absolute inset-0 flex items-center justify-center text-gray-500">
                           <div className="text-center">
                             <GitBranch className="h-12 w-12 mx-auto mb-4 opacity-50" />
