@@ -39,6 +39,7 @@ A complete project management platform that helps teams collaborate, track proje
 - **Project Creation** - Easy project setup with templates
 - **Progress Tracking** - Visual progress bars and status updates
 - **Report Generation** - Create and export project reports
+- **Workflow Builder** - Visual drag & drop workflow automation
 
 ### Content & Blog
 - **Blog System** - Article listing with search and categories
@@ -58,6 +59,7 @@ A complete project management platform that helps teams collaborate, track proje
 - `/dashboard` - Main workspace overview
 - `/dashboard/projects` - Project management
 - `/dashboard/team` - Team collaboration tools
+- `/dashboard/workflow` - Visual workflow builder with drag & drop
 - `/dashboard/settings` - Account preferences
 
 ## Quick Start
@@ -102,6 +104,9 @@ open images/
 
 ![Projects](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/project-screen.png)
 *Project tracking and management*
+
+![Workflow Builder](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/project-screen.png)
+*Visual drag & drop workflow automation*
 
 ### User Interface
 ![Profile](https://github.com/Chief-Strategist-J/workflow-builder/blob/main/my-app/images/profile-screen.png)
