@@ -437,7 +437,7 @@ export default function WorkflowPage() {
                   </CardHeader>
                   <CardContent>
                     <div
-                      className="workflow-canvas relative min-h-[500px] w-full bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
+                      className="workflow-canvas relative min-h-[600px] w-full bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
                       onDrop={handleDrop}
                       onDragOver={handleDragOver}
                       style={{
