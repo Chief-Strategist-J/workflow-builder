@@ -41,12 +41,13 @@ A complete project management platform that helps teams collaborate, track proje
 - **Report Generation** - Create and export project reports
 ### Workflow Automation
 - **Complete CRUD Operations** - Create, Read, Update, Delete workflows
-- **Visual Drag & Drop Builder** - n8n-style workflow automation interface
+- **n8n-Style Visual Builder** - Professional drag & drop workflow automation
 - **6 Node Types** - Trigger, Email, Condition, Delay, Webhook, Database
-- **Real-time Canvas** - Visual workflow design with animated connections
-- **Workflow Templates** - Pre-built automation examples
-- **Status Management** - Activate/deactivate workflows with one click
-- **Search & Filter** - Find workflows quickly by name or description
+- **Visual Connections** - Drag between nodes to create connections with animated lines
+- **Real-time Canvas** - Professional dotted grid background with smooth interactions
+- **Node Configuration** - Click nodes to modify settings and properties
+- **Connection Management** - Add, view, and delete node connections
+- **Workflow Templates** - Pre-built automation examples to get started
 
 ### Content & Blog
 - **Blog System** - Article listing with search and categories
