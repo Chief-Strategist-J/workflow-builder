@@ -370,7 +370,7 @@ export default function DashboardPage() {
                   <Button className="w-full justify-start" variant="outline" asChild>
                     <Link href="/dashboard/workflow">
                       <GitBranch className="mr-2 h-4 w-4" />
-                      Create Workflow
+                      Manage Workflows
                     </Link>
                   </Button>
                   <Button className="w-full justify-start" variant="outline" asChild>

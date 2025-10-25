@@ -32,6 +32,10 @@ import {
   FileText as FileIcon,
   Plus,
   Trash2,
+  Edit,
+  Eye,
+  Search,
+  MoreHorizontal,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -73,6 +77,15 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   SidebarProvider,
   Sidebar,
@@ -129,151 +142,110 @@ const navigation = [
   },
 ]
 
-// Workflow node types
-const nodeTypes = [
-  {
-    id: "trigger",
-    name: "Trigger",
-    icon: Zap,
-    color: "bg-yellow-100 border-yellow-300 text-yellow-800",
-    description: "Start a workflow",
-  },
-  {
-    id: "email",
-    name: "Send Email",
-    icon: Mail,
-    color: "bg-blue-100 border-blue-300 text-blue-800",
-    description: "Send an email",
-  },
-  {
-    id: "condition",
-    name: "Condition",
-    icon: Filter,
-    color: "bg-purple-100 border-purple-300 text-purple-800",
-    description: "If/else logic",
-  },
-  {
-    id: "delay",
-    name: "Delay",
-    icon: Timer,
-    color: "bg-gray-100 border-gray-300 text-gray-800",
-    description: "Wait for time",
-  },
-  {
-    id: "webhook",
-    name: "Webhook",
-    icon: Webhook,
-    color: "bg-green-100 border-green-300 text-green-800",
-    description: "HTTP request",
-  },
-  {
-    id: "database",
-    name: "Database",
-    icon: DatabaseIcon,
-    color: "bg-indigo-100 border-indigo-300 text-indigo-800",
-    description: "Database operation",
-  },
-]
-
-interface WorkflowNode {
+interface Workflow {
   id: string
-  type: string
   name: string
-  x: number
-  y: number
-  config: Record<string, any>
+  description: string
+  status: "active" | "inactive" | "draft"
+  nodes: number
+  connections: number
+  lastRun?: string
+  createdAt: string
+  updatedAt: string
 }
 
 export default function WorkflowPage() {
-  const [nodes, setNodes] = useState<WorkflowNode[]>([])
-  const [connections, setConnections] = useState<{ from: string; to: string }[]>([])
-  const [draggedNode, setDraggedNode] = useState<string | null>(null)
-  const [selectedNode, setSelectedNode] = useState<string | null>(null)
-  const [workflowName, setWorkflowName] = useState("My Workflow")
-  const [isRunning, setIsRunning] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(true)
+  const [workflows, setWorkflows] = useState<Workflow[]>([
+    {
+      id: "1",
+      name: "User Registration Flow",
+      description: "Automated workflow for new user onboarding",
+      status: "active",
+      nodes: 5,
+      connections: 4,
+      lastRun: "2 hours ago",
+      createdAt: "2024-01-15",
+      updatedAt: "2024-01-20",
+    },
+    {
+      id: "2",
+      name: "Email Marketing Campaign",
+      description: "Send automated emails based on user actions",
+      status: "active",
+      nodes: 8,
+      connections: 6,
+      lastRun: "1 day ago",
+      createdAt: "2024-01-10",
+      updatedAt: "2024-01-18",
+    },
+    {
+      id: "3",
+      name: "Data Backup Process",
+      description: "Automated daily database backup workflow",
+      status: "inactive",
+      nodes: 3,
+      connections: 2,
+      lastRun: "3 days ago",
+      createdAt: "2024-01-05",
+      updatedAt: "2024-01-12",
+    },
+  ])
 
-  const handleDragStart = (e: React.DragEvent, nodeType: string) => {
-    e.dataTransfer.setData("nodeType", nodeType)
-  }
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [newWorkflowName, setNewWorkflowName] = useState("")
+  const [newWorkflowDescription, setNewWorkflowDescription] = useState("")
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    const nodeType = e.dataTransfer.getData("nodeType")
-    if (!nodeType) return
+  const filteredWorkflows = workflows.filter(workflow =>
+    workflow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    workflow.description.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left - 100
-    const y = e.clientY - rect.top - 50
+  const handleCreateWorkflow = () => {
+    if (newWorkflowName.trim()) {
+      const newWorkflow: Workflow = {
+        id: Date.now().toString(),
+        name: newWorkflowName,
+        description: newWorkflowDescription,
+        status: "draft",
+        nodes: 0,
+        connections: 0,
+        createdAt: new Date().toISOString().split('T')[0],
+        updatedAt: new Date().toISOString().split('T')[0],
+      }
 
-    const nodeTypeData = nodeTypes.find(n => n.id === nodeType)
-    if (!nodeTypeData) return
-
-    const newNode: WorkflowNode = {
-      id: `${nodeType}-${Date.now()}`,
-      type: nodeType,
-      name: nodeTypeData.name,
-      x,
-      y,
-      config: {},
+      setWorkflows(prev => [...prev, newWorkflow])
+      setNewWorkflowName("")
+      setNewWorkflowDescription("")
+      setIsCreateDialogOpen(false)
     }
-
-    setNodes(prev => [...prev, newNode])
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
-
-  const handleNodeDrag = (e: React.DragEvent, nodeId: string) => {
-    if (!isEditMode) return
-
-    const rect = e.currentTarget.getBoundingClientRect()
-    const parentRect = e.currentTarget.closest('.workflow-canvas')?.getBoundingClientRect()
-
-    if (parentRect) {
-      const x = e.clientX - parentRect.left - 100
-      const y = e.clientY - parentRect.top - 50
-
-      setNodes(prev => prev.map(node =>
-        node.id === nodeId
-          ? { ...node, x: Math.max(0, x), y: Math.max(0, y) }
-          : node
-      ))
+  const handleDeleteWorkflow = (workflowId: string) => {
+    if (confirm("Are you sure you want to delete this workflow?")) {
+      setWorkflows(prev => prev.filter(w => w.id !== workflowId))
     }
   }
 
-  const handleDeleteNode = (nodeId: string) => {
-    setNodes(prev => prev.filter(node => node.id !== nodeId))
-    setConnections(prev => prev.filter(conn => conn.from !== nodeId && conn.to !== nodeId))
-    if (selectedNode === nodeId) {
-      setSelectedNode(null)
-    }
+  const handleToggleStatus = (workflowId: string) => {
+    setWorkflows(prev => prev.map(workflow =>
+      workflow.id === workflowId
+        ? { ...workflow, status: workflow.status === "active" ? "inactive" : "active" }
+        : workflow
+    ))
   }
 
-  const handleSaveWorkflow = () => {
-    const workflowData = {
-      name: workflowName,
-      nodes,
-      connections,
+  const handleDuplicateWorkflow = (workflow: Workflow) => {
+    const duplicatedWorkflow: Workflow = {
+      ...workflow,
+      id: Date.now().toString(),
+      name: `${workflow.name} (Copy)`,
+      status: "draft",
+      lastRun: undefined,
+      createdAt: new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString().split('T')[0],
     }
-    // Simulate save
-    alert(`Workflow "${workflowName}" saved successfully!`)
-    console.log("Saved workflow:", workflowData)
-  }
-
-  const handleRunWorkflow = () => {
-    if (nodes.length === 0) {
-      alert("Please add some nodes to the workflow before running.")
-      return
-    }
-
-    setIsRunning(true)
-    // Simulate workflow execution
-    setTimeout(() => {
-      setIsRunning(false)
-      alert(`Workflow "${workflowName}" executed successfully!`)
-    }, 3000)
+    setWorkflows(prev => [...prev, duplicatedWorkflow])
   }
 
   return (
@@ -325,54 +297,64 @@ export default function WorkflowPage() {
               <SidebarTrigger />
               <div className="flex-1">
                 <div className="flex items-center gap-4">
-                  <h1 className="text-lg font-semibold">Workflow Builder</h1>
-                  <div className="flex items-center gap-2">
+                  <h1 className="text-lg font-semibold">Workflow Management</h1>
+                  <div className="relative max-w-md">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      value={workflowName}
-                      onChange={(e) => setWorkflowName(e.target.value)}
-                      className="w-64"
-                      placeholder="Enter workflow name"
+                      placeholder="Search workflows..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9"
                     />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsEditMode(!isEditMode)}
-                    >
-                      {isEditMode ? "View" : "Edit"}
-                    </Button>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSaveWorkflow}
-                  disabled={isRunning}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleRunWorkflow}
-                  disabled={isRunning || nodes.length === 0}
-                  className={isRunning ? "bg-red-600 hover:bg-red-700" : ""}
-                >
-                  {isRunning ? (
-                    <>
-                      <Square className="h-4 w-4 mr-2" />
-                      Stop
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-4 w-4 mr-2" />
-                      Run
-                    </>
-                  )}
-                </Button>
-              </div>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Workflow
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Create New Workflow</DialogTitle>
+                    <DialogDescription>
+                      Create a new automated workflow to streamline your processes.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="workflow-name">Workflow Name</Label>
+                      <Input
+                        id="workflow-name"
+                        value={newWorkflowName}
+                        onChange={(e) => setNewWorkflowName(e.target.value)}
+                        placeholder="Enter workflow name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="workflow-description">Description</Label>
+                      <Textarea
+                        id="workflow-description"
+                        value={newWorkflowDescription}
+                        onChange={(e) => setNewWorkflowDescription(e.target.value)}
+                        placeholder="Describe what this workflow does"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreateWorkflow} disabled={!newWorkflowName.trim()}>
+                      Create Workflow
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </header>
 
@@ -380,226 +362,157 @@ export default function WorkflowPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold tracking-tight">Workflow Builder</h2>
+                  <h2 className="text-2xl font-bold tracking-tight">Workflow Management</h2>
                   <p className="text-muted-foreground">
-                    Create automated workflows by dragging and connecting nodes
+                    Create and manage automated workflows for your business processes
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {nodes.length} nodes • {connections.length} connections
+                    {filteredWorkflows.length} workflows
                   </span>
-                  {isRunning && (
-                    <div className="flex items-center gap-2 text-sm text-green-600">
-                      <div className="h-2 w-2 rounded-full bg-green-600 animate-pulse" />
-                      Running...
-                    </div>
-                  )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
-                {/* Node Palette */}
-                <Card className="lg:col-span-1">
-                  <CardHeader>
-                    <CardTitle className="text-base">Node Types</CardTitle>
-                    <CardDescription className="text-sm">
-                      Drag to canvas
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {nodeTypes.map((nodeType) => (
-                      <div
-                        key={nodeType.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, nodeType.id)}
-                        className={`p-2 rounded-md border-2 border-dashed cursor-move hover:border-solid hover:shadow-sm transition-all ${nodeType.color}`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <nodeType.icon className="h-3 w-3" />
-                          <div>
-                            <div className="font-medium text-xs">{nodeType.name}</div>
-                            <div className="text-xs opacity-75 leading-tight">{nodeType.description}</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
+              {filteredWorkflows.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                    <GitBranch className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No workflows yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create your first automated workflow to get started
+                  </p>
+                  <Button onClick={() => setIsCreateDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Workflow
+                  </Button>
                 </Card>
-
-                {/* Workflow Canvas */}
-                <Card className="lg:col-span-5">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Workflow Canvas</CardTitle>
-                    <CardDescription>
-                      Drop nodes here and connect them to create your workflow
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div
-                      className="workflow-canvas relative min-h-[600px] w-full bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
-                      onDrop={handleDrop}
-                      onDragOver={handleDragOver}
-                      style={{
-                        backgroundImage: `
-                          radial-gradient(circle, #e5e7eb 1px, transparent 1px),
-                          radial-gradient(circle, #e5e7eb 1px, transparent 1px)
-                        `,
-                        backgroundSize: '20px 20px',
-                        backgroundPosition: '0 0, 10px 10px',
-                      }}
-                    >
-                      {/* Render workflow nodes */}
-                      {nodes.map((node) => (
-                        <div
-                          key={node.id}
-                          className={`absolute w-32 p-3 rounded-lg border-2 shadow-lg cursor-move transition-all hover:shadow-xl ${
-                            selectedNode === node.id
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-300 bg-white'
-                          }`}
-                          style={{
-                            left: node.x,
-                            top: node.y,
-                            zIndex: selectedNode === node.id ? 10 : 1,
-                          }}
-                          draggable={isEditMode}
-                          onDrag={(e) => handleNodeDrag(e, node.id)}
-                          onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
-                        >
-                          <div className="flex items-center justify-between mb-2">
+              ) : (
+                <div className="grid gap-4">
+                  {filteredWorkflows.map((workflow) => (
+                    <Card key={workflow.id} className="hover:shadow-md transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              {(() => {
-                                const nodeTypeData = nodeTypes.find(n => n.id === node.type)
-                                const IconComponent = nodeTypeData?.icon || GitBranch
-                                return <IconComponent className="h-3 w-3" />
-                              })()}
-                              <span className="font-medium text-xs">{node.name}</span>
-                            </div>
-                            {isEditMode && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-5 w-5 p-0 text-red-500 hover:text-red-700"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleDeleteNode(node.id)
-                                }}
+                              <CardTitle className="text-lg">{workflow.name}</CardTitle>
+                              <Badge
+                                variant={workflow.status === "active" ? "default" : workflow.status === "inactive" ? "secondary" : "outline"}
                               >
-                                <Trash2 className="h-2 w-2" />
-                              </Button>
-                            )}
-                          </div>
-                          <div className="text-xs text-gray-600 mb-2 leading-tight">
-                            {nodeTypes.find(n => n.id === node.type)?.description}
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex gap-1">
-                              <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
-                              <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
+                                {workflow.status}
+                              </Badge>
                             </div>
-                            {isEditMode && (
-                              <Button variant="outline" size="sm" className="h-5 text-xs px-2">
-                                Configure
+                            <CardDescription>{workflow.description}</CardDescription>
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
                               </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem asChild>
+                                <Link href={`/dashboard/workflow/builder/${workflow.id}`}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link href={`/dashboard/workflow/builder/${workflow.id}?view=true`}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDuplicateWorkflow(workflow)}>
+                                <Copy className="mr-2 h-4 w-4" />
+                                Duplicate
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => handleToggleStatus(workflow.id)}
+                                className={workflow.status === "active" ? "text-orange-600" : "text-green-600"}
+                              >
+                                {workflow.status === "active" ? (
+                                  <>
+                                    <Square className="mr-2 h-4 w-4" />
+                                    Deactivate
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="mr-2 h-4 w-4" />
+                                    Activate
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDeleteWorkflow(workflow.id)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <div className="text-muted-foreground">Nodes</div>
+                            <div className="font-medium">{workflow.nodes}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Connections</div>
+                            <div className="font-medium">{workflow.connections}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Last Run</div>
+                            <div className="font-medium">
+                              {workflow.lastRun || "Never"}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Updated</div>
+                            <div className="font-medium">{workflow.updatedAt}</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 mt-4">
+                          <Button variant="outline" size="sm" asChild>
+                            <Link href={`/dashboard/workflow/builder/${workflow.id}`}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </Link>
+                          </Button>
+                          <Button variant="outline" size="sm" asChild>
+                            <Link href={`/dashboard/workflow/builder/${workflow.id}?view=true`}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View
+                            </Link>
+                          </Button>
+                          <Button
+                            variant={workflow.status === "active" ? "destructive" : "default"}
+                            size="sm"
+                            onClick={() => handleToggleStatus(workflow.id)}
+                          >
+                            {workflow.status === "active" ? (
+                              <>
+                                <Square className="h-4 w-4 mr-2" />
+                                Stop
+                              </>
+                            ) : (
+                              <>
+                                <Play className="h-4 w-4 mr-2" />
+                                Start
+                              </>
                             )}
-                          </div>
+                          </Button>
                         </div>
-                      ))}
-
-                      {/* Render connections */}
-                      <svg className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-                        {connections.map((connection, index) => {
-                          const fromNode = nodes.find(n => n.id === connection.from)
-                          const toNode = nodes.find(n => n.id === connection.to)
-                          if (!fromNode || !toNode) return null
-
-                          const fromX = fromNode.x + 128 // Center of node width (w-32 = 128px)
-                          const fromY = fromNode.y + 60 // Bottom of node
-                          const toX = toNode.x + 64 // Center of target node
-                          const toY = toNode.y + 20 // Top of target node
-
-                          return (
-                            <g key={index}>
-                              <line
-                                x1={fromX}
-                                y1={fromY}
-                                x2={toX}
-                                y2={toY}
-                                stroke="#3b82f6"
-                                strokeWidth="2"
-                                strokeDasharray="5,5"
-                                className="animate-pulse"
-                              />
-                              <circle cx={fromX} cy={fromY} r="4" fill="#3b82f6" />
-                              <circle cx={toX} cy={toY} r="4" fill="#3b82f6" />
-                            </g>
-                          )
-                        })}
-                      </svg>
-
-                      {nodes.length === 0 && (
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-                          <div className="text-center">
-                            <GitBranch className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                            <p className="text-lg font-medium">Start Building Your Workflow</p>
-                            <p className="text-sm">Drag nodes from the left panel to get started</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Workflow Actions */}
-              {selectedNode && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Node Configuration</CardTitle>
-                    <CardDescription>
-                      Configure the selected workflow node
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Node Type</Label>
-                        <Select value={nodes.find(n => n.id === selectedNode)?.type || ""}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {nodeTypes.map((type) => (
-                              <SelectItem key={type.id} value={type.id}>
-                                {type.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Node Name</Label>
-                        <Input
-                          value={nodes.find(n => n.id === selectedNode)?.name || ""}
-                          onChange={(e) => {
-                            setNodes(prev => prev.map(node =>
-                              node.id === selectedNode
-                                ? { ...node, name: e.target.value }
-                                : node
-                            ))
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setSelectedNode(null)}>
-                        Cancel
-                      </Button>
-                      <Button>Save Configuration</Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               )}
             </div>
           </main>
