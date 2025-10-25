@@ -189,12 +189,75 @@ export default function WorkflowBuilderPage() {
   const params = useParams()
   const workflowId = params.id as string
   const isViewMode = new URLSearchParams(window.location.search).get('view') === 'true'
+  const isNewWorkflow = workflowId === 'new'
 
-  const [nodes, setNodes] = useState<WorkflowNode[]>([])
-  const [connections, setConnections] = useState<{ from: string; to: string }[]>([])
+  // Sample workflow data (in a real app, this would come from an API)
+  const sampleWorkflows = [
+    {
+      id: "1",
+      name: "User Registration Flow",
+      description: "Automated workflow for new user onboarding",
+      nodes: [
+        { id: "trigger-1", type: "trigger", name: "User Registration", x: 100, y: 100, config: {} },
+        { id: "email-1", type: "email", name: "Welcome Email", x: 300, y: 100, config: {} },
+        { id: "delay-1", type: "delay", name: "Wait 1 Day", x: 500, y: 100, config: {} },
+        { id: "email-2", type: "email", name: "Follow-up Email", x: 700, y: 100, config: {} },
+        { id: "webhook-1", type: "webhook", name: "Update CRM", x: 900, y: 100, config: {} },
+      ],
+      connections: [
+        { from: "trigger-1", to: "email-1" },
+        { from: "email-1", to: "delay-1" },
+        { from: "delay-1", to: "email-2" },
+        { from: "email-2", to: "webhook-1" },
+      ],
+    },
+    {
+      id: "2",
+      name: "Email Marketing Campaign",
+      description: "Send automated emails based on user actions",
+      nodes: [
+        { id: "trigger-2", type: "trigger", name: "User Action", x: 100, y: 100, config: {} },
+        { id: "condition-1", type: "condition", name: "Check Status", x: 300, y: 100, config: {} },
+        { id: "email-3", type: "email", name: "Promotional Email", x: 500, y: 50, config: {} },
+        { id: "delay-2", type: "delay", name: "Wait 3 Days", x: 500, y: 150, config: {} },
+        { id: "webhook-2", type: "webhook", name: "Track Response", x: 700, y: 100, config: {} },
+      ],
+      connections: [
+        { from: "trigger-2", to: "condition-1" },
+        { from: "condition-1", to: "email-3" },
+        { from: "condition-1", to: "delay-2" },
+        { from: "delay-2", to: "webhook-2" },
+      ],
+    },
+    {
+      id: "3",
+      name: "Data Backup Process",
+      description: "Automated daily database backup workflow",
+      nodes: [
+        { id: "trigger-3", type: "trigger", name: "Daily Schedule", x: 100, y: 100, config: {} },
+        { id: "database-1", type: "database", name: "Export Data", x: 300, y: 100, config: {} },
+        { id: "webhook-3", type: "webhook", name: "Upload Backup", x: 500, y: 100, config: {} },
+      ],
+      connections: [
+        { from: "trigger-3", to: "database-1" },
+        { from: "database-1", to: "webhook-3" },
+      ],
+    },
+  ]
+
+  const currentWorkflow = sampleWorkflows.find(w => w.id === workflowId) || sampleWorkflows[0]
+
+  const [nodes, setNodes] = useState<WorkflowNode[]>(
+    isNewWorkflow ? [] : (currentWorkflow?.nodes || [])
+  )
+  const [connections, setConnections] = useState<{ from: string; to: string }[]>(
+    isNewWorkflow ? [] : (currentWorkflow?.connections || [])
+  )
   const [draggedNode, setDraggedNode] = useState<string | null>(null)
   const [selectedNode, setSelectedNode] = useState<string | null>(null)
-  const [workflowName, setWorkflowName] = useState("My Workflow")
+  const [workflowName, setWorkflowName] = useState(
+    isNewWorkflow ? "New Workflow" : (currentWorkflow?.name || "My Workflow")
+  )
   const [isRunning, setIsRunning] = useState(false)
   const [isEditMode, setIsEditMode] = useState(!isViewMode)
 
