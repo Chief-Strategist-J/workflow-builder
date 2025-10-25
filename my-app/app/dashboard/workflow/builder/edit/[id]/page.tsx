@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams, useSearchParams } from "next/navigation"
+import { useParams } from "next/navigation"
 import {
   User,
   Bell,
@@ -277,12 +277,9 @@ interface WorkflowNode {
   config: Record<string, any>
 }
 
-export default function WorkflowBuilderPage() {
+export default function WorkflowEditPage() {
   const params = useParams()
-  const searchParams = useSearchParams()
   const workflowId = params.id as string
-  const isViewMode = searchParams.get('view') === 'true'
-  const isNewWorkflow = workflowId === 'new'
 
   // Sample workflow data (in a real app, this would come from an API)
   const sampleWorkflows = [
@@ -356,22 +353,22 @@ export default function WorkflowBuilderPage() {
   const currentWorkflow = sampleWorkflows.find(w => w.id === workflowId) || sampleWorkflows[0]
 
   const [nodes, setNodes] = useState<WorkflowNode[]>(
-    isNewWorkflow ? [] : (currentWorkflow?.nodes || [])
+    currentWorkflow?.nodes || []
   )
   const [connections, setConnections] = useState<{ from: string; to: string }[]>(
-    isNewWorkflow ? [] : (currentWorkflow?.connections || [])
+    currentWorkflow?.connections || []
   )
   const [draggedNode, setDraggedNode] = useState<string | null>(null)
   const [selectedNode, setSelectedNode] = useState<string | null>(null)
   const [workflowName, setWorkflowName] = useState(
-    isNewWorkflow ? "New Workflow" : (currentWorkflow?.name || "My Workflow")
+    currentWorkflow?.name || "My Workflow"
   )
-  const [isRunning, setIsRunning] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(!isViewMode)
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectionStart, setConnectionStart] = useState<string | null>(null)
   const [nodeSearchQuery, setNodeSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [isEditMode] = useState(true) // Always in edit mode for edit page
+  const [isRunning, setIsRunning] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [nodePanelWidth, setNodePanelWidth] = useState(320) // Initial width in pixels
   const [minNodePanelWidth] = useState(280)
@@ -385,34 +382,6 @@ export default function WorkflowBuilderPage() {
     const matchesCategory = selectedCategory === "all" || node.category === selectedCategory
     return matchesSearch && matchesCategory
   })
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsResizing(true)
-    e.preventDefault()
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isResizing) return
-
-    const container = e.currentTarget as HTMLElement
-    const rect = container.getBoundingClientRect()
-    const newWidth = e.clientX - rect.left
-
-    if (newWidth >= minNodePanelWidth && newWidth <= maxNodePanelWidth) {
-      setNodePanelWidth(newWidth)
-    }
-  }
-
-  const handleMouseUp = () => {
-    setIsResizing(false)
-  }
-
-  const handleNodeMouseDown = (nodeId: string) => {
-    if (!isEditMode || isViewMode) return
-
-    setConnectionStart(nodeId)
-    setIsConnecting(true)
-  }
 
   const handleCanvasMouseMove = (e: React.MouseEvent) => {
     if (isConnecting && connectionStart) {
@@ -535,7 +504,7 @@ export default function WorkflowBuilderPage() {
 
   // Handle mouse events for connection system
   const handleConnectionMouseDown = (e: React.MouseEvent, nodeId: string) => {
-    if (!isEditMode || isViewMode) return
+    if (!isEditMode) return
 
     e.stopPropagation()
     setConnectionStart(nodeId)
@@ -544,7 +513,7 @@ export default function WorkflowBuilderPage() {
   }
 
   const handleConnectionMouseUp = (e: React.MouseEvent, nodeId: string) => {
-    if (!isEditMode || isViewMode || !isConnecting || !connectionStart) return
+    if (!isEditMode || !isConnecting || !connectionStart) return
 
     e.stopPropagation()
 
@@ -671,18 +640,15 @@ export default function WorkflowBuilderPage() {
                     </Link>
                   </Button>
                   <div className="flex items-center gap-2">
-                    <h1 className="text-lg font-semibold">Workflow Builder</h1>
+                    <h1 className="text-lg font-semibold">Edit Workflow</h1>
                     <div className="flex items-center gap-2">
                       <Input
                         value={workflowName}
                         onChange={(e) => setWorkflowName(e.target.value)}
                         className="w-64"
                         placeholder="Enter workflow name"
-                        disabled={isViewMode}
                       />
-                      {isViewMode && (
-                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full border">View Mode</span>
-                      )}
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full border">Edit Mode</span>
                     </div>
                   </div>
                 </div>
@@ -693,7 +659,7 @@ export default function WorkflowBuilderPage() {
                   variant="outline"
                   size="sm"
                   onClick={handleSaveWorkflow}
-                  disabled={isRunning || isViewMode}
+                  disabled={isRunning}
                 >
                   <Save className="h-4 w-4 mr-2" />
                   Save
@@ -701,7 +667,7 @@ export default function WorkflowBuilderPage() {
                 <Button
                   size="sm"
                   onClick={handleRunWorkflow}
-                  disabled={isRunning || nodes.length === 0 || isViewMode}
+                  disabled={isRunning || nodes.length === 0}
                   className={isRunning ? "bg-red-600 hover:bg-red-700" : ""}
                 >
                   {isRunning ? (
@@ -716,6 +682,11 @@ export default function WorkflowBuilderPage() {
                     </>
                   )}
                 </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/dashboard/workflow/builder/view/${workflowId}`}>
+                    View Mode
+                  </Link>
+                </Button>
               </div>
             </div>
           </header>
@@ -726,7 +697,7 @@ export default function WorkflowBuilderPage() {
                 <div>
                   <h2 className="text-2xl font-bold tracking-tight">{workflowName}</h2>
                   <p className="text-muted-foreground">
-                    {isViewMode ? "View workflow configuration" : "Create automated workflows by dragging and connecting nodes"}
+                    Edit workflow configuration and node connections
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -744,96 +715,92 @@ export default function WorkflowBuilderPage() {
 
               <div className="resizable-container relative flex gap-6 h-[700px]">
                 {/* Node Palette */}
-                {!isViewMode && (
-                  <Card className="flex-shrink-0" style={{ width: nodePanelWidth }}>
-                    <CardHeader>
-                      <CardTitle className="text-base">Node Types</CardTitle>
-                      <CardDescription className="text-sm">
-                        Drag to canvas
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {/* Search and Category Filter */}
-                      <div className="space-y-2">
-                        <Input
-                          placeholder="Search nodes..."
-                          value={nodeSearchQuery}
-                          onChange={(e) => setNodeSearchQuery(e.target.value)}
-                          className="text-sm"
-                        />
-                        <div className="flex flex-wrap gap-1">
-                          {nodeCategories.map((category) => (
-                            <Button
-                              key={category.id}
-                              variant={selectedCategory === category.id ? "default" : "outline"}
-                              size="sm"
-                              className="h-7 text-xs"
-                              onClick={() => setSelectedCategory(category.id)}
-                            >
-                              <category.icon className="h-3 w-3 mr-1" />
-                              {category.name}
-                            </Button>
-                          ))}
-                        </div>
+                <Card className="flex-shrink-0" style={{ width: nodePanelWidth }}>
+                  <CardHeader>
+                    <CardTitle className="text-base">Node Types</CardTitle>
+                    <CardDescription className="text-sm">
+                      Drag to canvas
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Search and Category Filter */}
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="Search nodes..."
+                        value={nodeSearchQuery}
+                        onChange={(e) => setNodeSearchQuery(e.target.value)}
+                        className="text-sm"
+                      />
+                      <div className="flex flex-wrap gap-1">
+                        {nodeCategories.map((category) => (
+                          <Button
+                            key={category.id}
+                            variant={selectedCategory === category.id ? "default" : "outline"}
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => setSelectedCategory(category.id)}
+                          >
+                            <category.icon className="h-3 w-3 mr-1" />
+                            {category.name}
+                          </Button>
+                        ))}
                       </div>
+                    </div>
 
-                      <div className="space-y-2 max-h-96 overflow-y-auto">
-                        {filteredNodeTypes.length === 0 ? (
-                          <div className="text-center py-4 text-sm text-muted-foreground">
-                            No nodes found
-                          </div>
-                        ) : (
-                          filteredNodeTypes.map((nodeType) => (
-                            <div
-                              key={nodeType.id}
-                              draggable
-                              onDragStart={(e) => handleDragStart(e, nodeType.id)}
-                              className={`p-2 rounded-md border-2 border-dashed cursor-move hover:border-solid hover:shadow-sm transition-all ${nodeType.color}`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <nodeType.icon className="h-3 w-3" />
-                                <div className="flex-1">
-                                  <div className="font-medium text-xs">{nodeType.name}</div>
-                                  <div className="text-xs opacity-75 leading-tight">{nodeType.description}</div>
-                                </div>
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {filteredNodeTypes.length === 0 ? (
+                        <div className="text-center py-4 text-sm text-muted-foreground">
+                          No nodes found
+                        </div>
+                      ) : (
+                        filteredNodeTypes.map((nodeType) => (
+                          <div
+                            key={nodeType.id}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, nodeType.id)}
+                            className={`p-2 rounded-md border-2 border-dashed cursor-move hover:border-solid hover:shadow-sm transition-all ${nodeType.color}`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <nodeType.icon className="h-3 w-3" />
+                              <div className="flex-1">
+                                <div className="font-medium text-xs">{nodeType.name}</div>
+                                <div className="text-xs opacity-75 leading-tight">{nodeType.description}</div>
                               </div>
                             </div>
-                          ))
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
 
                 {/* Resize Handle */}
-                {!isViewMode && (
-                  <div
-                    className="w-1 bg-gray-300 cursor-col-resize hover:bg-gray-400 transition-colors relative group"
-                    onMouseDown={handleResizeMouseDown}
-                    style={{
-                      cursor: isResizing ? 'col-resize' : 'col-resize',
-                    }}
-                  >
-                    <div className="absolute inset-y-0 -left-1 -right-1 group-hover:bg-blue-200 transition-colors" />
-                    {isResizing && (
-                      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-full" />
-                    )}
-                  </div>
-                )}
+                <div
+                  className="w-1 bg-gray-300 cursor-col-resize hover:bg-gray-400 transition-colors relative group"
+                  onMouseDown={handleResizeMouseDown}
+                  style={{
+                    cursor: isResizing ? 'col-resize' : 'col-resize',
+                  }}
+                >
+                  <div className="absolute inset-y-0 -left-1 -right-1 group-hover:bg-blue-200 transition-colors" />
+                  {isResizing && (
+                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-full" />
+                  )}
+                </div>
 
                 {/* Workflow Canvas */}
                 <Card className="flex-1 min-w-0">
                   <CardHeader>
                     <CardTitle className="text-lg">Workflow Canvas</CardTitle>
                     <CardDescription>
-                      {isViewMode ? "View workflow structure" : "Drop nodes here and connect them to create your workflow"}
+                      Drop nodes here and connect them to create your workflow
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div
                       className="workflow-canvas relative min-h-[600px] w-full bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
-                      onDrop={!isViewMode ? handleDrop : undefined}
-                      onDragOver={!isViewMode ? handleDragOver : undefined}
+                      onDrop={handleDrop}
+                      onDragOver={handleDragOver}
                       onClick={handleCanvasMouseUp}
                       onMouseMove={handleCanvasMouseMove}
                       style={{
@@ -872,7 +839,7 @@ export default function WorkflowBuilderPage() {
                               })()}
                               <span className="font-medium text-xs">{node.name}</span>
                             </div>
-                            {isEditMode && !isViewMode && (
+                            {isEditMode && (
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -894,7 +861,7 @@ export default function WorkflowBuilderPage() {
                               <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
                               <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
                             </div>
-                            {isEditMode && !isViewMode && (
+                            {isEditMode && (
                               <Button variant="outline" size="sm" className="h-5 text-xs px-2">
                                 Configure
                               </Button>
@@ -902,7 +869,7 @@ export default function WorkflowBuilderPage() {
                           </div>
 
                           {/* Connection points */}
-                          {isEditMode && !isViewMode && (
+                          {isEditMode && (
                             <>
                               {/* Input connection point (left) */}
                               <div
@@ -979,7 +946,7 @@ export default function WorkflowBuilderPage() {
                               <circle cx={toX} cy={toY} r="3" fill="#3b82f6" className="hover:fill-blue-600 transition-colors" />
 
                               {/* Delete connection button (only in edit mode) */}
-                              {isEditMode && !isViewMode && (
+                              {isEditMode && (
                                 <foreignObject
                                   x={(fromX + toX) / 2 - 10}
                                   y={(fromY + toY) / 2 - 10}
@@ -1007,14 +974,9 @@ export default function WorkflowBuilderPage() {
                         <div className="absolute inset-0 flex items-center justify-center text-gray-500">
                           <div className="text-center">
                             <GitBranch className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                            <p className="text-lg font-medium">
-                              {isViewMode ? "No workflow nodes" : "Start Building Your Workflow"}
-                            </p>
+                            <p className="text-lg font-medium">Start Building Your Workflow</p>
                             <p className="text-sm">
-                              {isViewMode
-                                ? "This workflow doesn't have any nodes yet"
-                                : "Drag nodes from the left panel to get started"
-                              }
+                              Drag nodes from the left panel to get started
                             </p>
                           </div>
                         </div>
@@ -1023,56 +985,6 @@ export default function WorkflowBuilderPage() {
                   </CardContent>
                 </Card>
               </div>
-
-              {/* Workflow Actions */}
-              {selectedNode && !isViewMode && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Node Configuration</CardTitle>
-                    <CardDescription>
-                      Configure the selected workflow node
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Node Type</Label>
-                        <Select value={nodes.find(n => n.id === selectedNode)?.type || ""}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {nodeTypes.map((type) => (
-                              <SelectItem key={type.id} value={type.id}>
-                                {type.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Node Name</Label>
-                        <Input
-                          value={nodes.find(n => n.id === selectedNode)?.name || ""}
-                          onChange={(e) => {
-                            setNodes(prev => prev.map(node =>
-                              node.id === selectedNode
-                                ? { ...node, name: e.target.value }
-                                : node
-                            ))
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setSelectedNode(null)}>
-                        Cancel
-                      </Button>
-                      <Button>Save Configuration</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           </main>
         </div>
