@@ -37,6 +37,7 @@ import {
   Eye,
   Search,
   MoreHorizontal,
+  Home,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -103,7 +104,8 @@ const navigation = [
   {
     title: "Overview",
     url: "/dashboard",
-    icon: BarChart3,
+    icon: Home,
+    isActive: false,
   },
   {
     title: "Analytics",
@@ -222,7 +224,7 @@ export default function WorkflowPage() {
       setIsCreateDialogOpen(false)
 
       // Redirect to workflow builder
-      router.push(`/dashboard/workflow/builder/${newWorkflow.id}`)
+      router.push(`/dashboard/workflow/builder/edit/${newWorkflow.id}`)
     }
   }
 
@@ -421,13 +423,13 @@ export default function WorkflowPage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuItem asChild>
-                                <Link href={`/dashboard/workflow/builder/${workflow.id}`}>
+                                <Link href={`/dashboard/workflow/builder/edit/${workflow.id}`}>
                                   <Edit className="mr-2 h-4 w-4" />
                                   Edit
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
-                                <Link href={`/dashboard/workflow/builder/${workflow.id}?view=true`}>
+                                <Link href={`/dashboard/workflow/builder/view/${workflow.id}`}>
                                   <Eye className="mr-2 h-4 w-4" />
                                   View
                                 </Link>
@@ -487,13 +489,13 @@ export default function WorkflowPage() {
                         </div>
                         <div className="flex gap-2 mt-4">
                           <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/workflow/builder/${workflow.id}`}>
+                            <Link href={`/dashboard/workflow/builder/edit/${workflow.id}`}>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </Link>
                           </Button>
                           <Button variant="outline" size="sm" asChild>
-                            <Link href={`/dashboard/workflow/builder/${workflow.id}?view=true`}>
+                            <Link href={`/dashboard/workflow/builder/view/${workflow.id}`}>
                               <Eye className="h-4 w-4 mr-2" />
                               View
                             </Link>
