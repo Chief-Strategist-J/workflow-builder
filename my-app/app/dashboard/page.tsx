@@ -20,6 +20,7 @@ import {
   ChevronRight,
   User,
   Calendar,
+  GitBranch,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -78,6 +79,11 @@ const navigation = [
     title: "Team",
     url: "/dashboard/team",
     icon: Users,
+  },
+  {
+    title: "Workflow",
+    url: "/dashboard/workflow",
+    icon: GitBranch,
   },
   {
     title: "Notifications",
@@ -362,21 +368,9 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/dashboard/create-project">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Create New Project
-                    </Link>
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/dashboard/invite-team">
-                      <Users className="mr-2 h-4 w-4" />
-                      Invite Team Member
-                    </Link>
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/dashboard/generate-report">
-                      <FileText className="mr-2 h-4 w-4" />
-                      Generate Report
+                    <Link href="/dashboard/workflow">
+                      <GitBranch className="mr-2 h-4 w-4" />
+                      Create Workflow
                     </Link>
                   </Button>
                   <Button className="w-full justify-start" variant="outline" asChild>
